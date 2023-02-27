@@ -14,7 +14,7 @@ require (
 	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635
 	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.2
 	golang.org/x/sys v0.0.0-20210324051608-47abb6519492
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
