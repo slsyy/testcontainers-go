@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
+	"encoding/base64"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -18,8 +20,33 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 	})
 
+	mux.HandleFunc("/auth-ping", func(w http.ResponseWriter, req *http.Request) {
+		auth := req.Header.Get("Authorization")
+		if strings.HasPrefix(auth, "Basic ") {
+			up, err := base64.StdEncoding.DecodeString(auth[6:])
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			if string(up) != "admin:admin" {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			data, _ := io.ReadAll(req.Body)
+			if bytes.Equal(data, []byte("ping")) {
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte("pong"))
+				return
+			} else {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusUnauthorized)
+	})
+
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, req *http.Request) {
-		data, _ := ioutil.ReadAll(req.Body)
+		data, _ := io.ReadAll(req.Body)
 		if bytes.Equal(data, []byte("ping")) {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte("pong"))
